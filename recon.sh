@@ -82,13 +82,26 @@ echo ' '
 rm numerodir
 
 
+## Separando subdomínios para a utilização do cURL ##
+cat $alvo/subs.txt | cut -d ' ' -f1>>$alvo/curl.txt
+
+
 ## Utilizando a URL para verificar se o método OPTIONS está habilitado ##
 echo -e "\e[36m[*]\e[39m Testando método OPTIONS..."
-curl -v -X OPTIONS --silent $alvop 2>&1 | grep allow
-echo ''
+
+while read c; do
+
+   if curl -v -X OPTIONS --silent https://$c 2>&1 | grep 'Host:\|allow' ; then echo ''>curl ; fi
+   	
+done < $alvo/curl.txt
+
+
+## Removendo arquivo criado ##
+rm curl
 
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
+echo ''
 echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '$alvo'! *\e[39m'
 
 
