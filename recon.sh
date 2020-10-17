@@ -28,25 +28,43 @@ echo ''
 host $alvo | grep "has address" | cut -d ' ' -f4 > ip
 ip=$(cat ip)
 
+
 ## Criando diretório com o respectivo nome para armazenar os arquivos ##
-mkdir $alvo
+mkdir /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo
+
 
 ## Enumerando subdomínios e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Enumerando subdomínios e armazenando no arquivo subs.txt..."
 
 while read p; do
 
-   if host $p.$dominio | grep "has address">>$alvo/subs.txt ; then echo ''>ip ; fi
+   if host $p.$dominio | grep "has address">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt ; then echo ''>ip ; fi
 
 done < dns.txt
+
+
+## Utilizando o Sublist3r para enumerar ainda mais subdomínios ##
+sublister -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
+
+
+## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados pelo Sublist3r ##
+for sub in $(cat sub.txt);
+do
+resposta=$(echo $sub&&host $sub)
+echo "$resposta" | grep "has address" | cut -d ' ' -f4 >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt;
+done
 
 
 ## Removendo arquivo criado ##
 rm ip
 
 
+## Juntando todos os subdomínios para a contagem ##
+cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt
+
+
 ## Contando quantos subdomínios foram encontrados e printando na tela ##
-wc -l $alvo/subs.txt | cut -d ' ' -f1>>numerosub
+wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>numerosub
 nsub=$(cat numerosub)
 echo -e '\e[32m[+]\e[39m Foram encontrados' $nsub 'subdomínios!'
 echo ' '
@@ -57,22 +75,22 @@ rm numerosub
 
 
 ## Separando os endereços IP dos subdomínios para o PortScan ##
-cat $alvo/subs.txt | cut -d ' ' -f4>>$alvo/ips.txt
+cat $alvo/subs.txt | cut -d ' ' -f4>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt
 
 
 ## Efetuando PortScan em massa utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
-nmap -sS --open -iL $alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>$alvo/ports.txt
+nmap -sS --open -iL /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ports.txt
 
 
 ## Utilizando a URL junto ao protocolo para enumerar diretórios, filtrando os encontrados, armazenando em um arquivo ##
 echo ''
 echo -e "\e[36m[*]\e[39m Enumerando diretórios e armazenando no arquivo dirs.txt..."
-dirb $alvop wordlist.txt | grep "CODE:200" >>$alvo/dirs.txt
+dirb $alvop wordlist.txt | grep "CODE:200" >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt
 
 
 ## Contando quantos diretórios foram encontrados e printando na tela ##
-wc -l $alvo/dirs.txt | cut -d ' ' -f1>>numerodir
+wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt | cut -d ' ' -f1>>numerodir
 ndir=$(cat numerodir)
 echo -e '\e[32m[+]\e[39m Foram encontrados' $ndir 'diretórios!'
 echo ' '
@@ -83,7 +101,7 @@ rm numerodir
 
 
 ## Separando subdomínios para a utilização do cURL ##
-cat $alvo/subs.txt | cut -d ' ' -f1>>$alvo/curl.txt
+cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
 
 
 ## Utilizando a URL para verificar se o método OPTIONS está habilitado ##
@@ -93,7 +111,7 @@ while read c; do
 
    if curl -v -X OPTIONS --silent https://$c 2>&1 | grep 'Host:\|allow' ; then echo ''>curl ; fi
    	
-done < $alvo/curl.txt
+done < /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
 
 
 ## Removendo arquivo criado ##
@@ -102,7 +120,7 @@ rm curl
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
 echo ''
-echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '$alvo'! *\e[39m'
+echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo'! *\e[39m'
 
 
 
