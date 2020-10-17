@@ -77,7 +77,7 @@ cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>
 ## Testando quais subdomínios estão no ar, e salvando em onsub.txt ##
 for online in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
 do
-resposta=$(echo $online&&ping -c1 $online)
+resposta=$(echo $online&&ping -c1 $online | grep "PING\|bytes from" | cut -d ' ' -f2)
 echo "[+]$online">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onsub.txt
 echo "$resposta" >> /dev/null 2>&1
 done
