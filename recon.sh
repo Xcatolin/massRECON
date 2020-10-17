@@ -70,6 +70,19 @@ echo -e '\e[32m[+]\e[39m Foram encontrados' $nsub 'subdomínios!'
 echo ' '
 
 
+## Separando apenas os subdomínios no arquivo subs.txt para serem pingados ##
+cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt
+
+
+## Testando quais subdomínios estão no ar, e salvando em onsub.txt ##
+for online in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
+do
+resposta=$(echo $online&&ping -c1 $online)
+echo "[+]$online">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onsub.txt
+echo "$resposta" >> /dev/null 2>&1
+done
+
+
 ## Removendo arquivo criado ##
 rm numerosub
 
@@ -78,7 +91,7 @@ rm numerosub
 cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f4>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt
 
 
-## Efetuando PortScan em massa utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
+## Escaneando portas utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
 nmap -sS --open -iL /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ports.txt
 
@@ -100,24 +113,6 @@ echo ' '
 rm numerodir
 
 
-## Separando subdomínios para a utilização do cURL ##
-cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
-
-
-## Utilizando a URL para verificar se o método OPTIONS está habilitado ##
-echo -e "\e[36m[*]\e[39m Testando método OPTIONS..."
-
-while read c; do
-
-   if curl -v -X OPTIONS --silent https://$c 2>&1 | grep 'Host:\|allow' ; then echo ''>curl ; fi
-   	
-done < /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
-
-
-## Removendo arquivo criado ##
-rm curl
-
-
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
 echo ''
 echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo'! *\e[39m'
@@ -130,3 +125,24 @@ echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '
 #echo " "
 #portas="21  22  23  25  53  66  79  80  107  110  111  118  119  137  138  139  143  150  161  194  209  217  389  407  443  445  465  515  522  531  568  569  587  666  700  701  992  993  995  1024  1414  1417  1418  1419  1420  1424  1434  1503  1547  1720  1731  1812  1813  2300  2301  2302  2303  2304  2305  2306  2307  2308  2309  2310  2311  2400  2611  2612  3000  3128  3306  3389  3568  3569  4000  4099  4661  4662  4665  5190  5500  5631  5632  5670  5800  5900  6003  6112  6257  6346  6500  6667  6699  6700  6880  6891  6892  6893  6894  6895  6896  6897  6898  6899  6900  6901  7000  7002  7013  7500  7640  7642  7648  7649  7777  7778  7779  7780  7781  8000  8080  9000  9004  9005  9008  9012  9013  12000  12053  12083  12080  12120  12122  24150  26000  26214  27015  27500  27660  27661  27662  27900  27910  47624  56800"
 #echo -e "\e[32m[+]\e[39m Portas encontradas: " && nc -v -w2 $ip $portas 2>&1 | grep succeeded | cut -d ' ' -f4
+
+
+### FUNÇÃO ANTIGA PARA TESTAR MÉTODO OPTIONS ###
+
+## Separando subdomínios para a utilização do cURL ##
+#cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
+
+
+## Utilizando a URL para verificar se o método OPTIONS está habilitado ##
+#echo -e "\e[36m[*]\e[39m Testando método OPTIONS..."
+
+#while read c; do
+
+#   if curl -v -X OPTIONS --silent https://$c 2>&1 | grep 'Host:\|allow' ; then echo ''>curl ; fi
+   	
+#done < /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
+
+
+## Removendo arquivo criado ##
+#rm curl
+
