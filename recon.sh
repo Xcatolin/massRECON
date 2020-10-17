@@ -44,11 +44,11 @@ done < dns.txt
 
 
 ## Utilizando o Sublist3r para enumerar ainda mais subdomínios ##
-sublister -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
+cd /usr/share/sublister/ && python3 sublist3r.py -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
 
 
 ## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados pelo Sublist3r ##
-for sub in $(cat sub.txt);
+for sub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt);
 do
 resposta=$(echo $sub&&host $sub)
 echo "$resposta" | grep "has address" | cut -d ' ' -f4 >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt;
@@ -75,7 +75,7 @@ rm numerosub
 
 
 ## Separando os endereços IP dos subdomínios para o PortScan ##
-cat $alvo/subs.txt | cut -d ' ' -f4>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt
+cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f4>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt
 
 
 ## Efetuando PortScan em massa utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
