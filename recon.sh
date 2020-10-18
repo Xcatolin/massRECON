@@ -64,10 +64,13 @@ cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt>>/home/matheus/D
 
 
 ## Contando quantos subdomínios foram encontrados e printando na tela ##
-wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>numerosub
+wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
 nsub=$(cat numerosub)
 echo -e '\e[32m[+]\e[39m Foram encontrados' $nsub 'subdomínios!'
 echo ' '
+
+## Removendo arquivo numerosub para que em um possível segundo teste a contagem seja exata ##
+rm /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
 
 
 ## Separando apenas os subdomínios no arquivo subs.txt para serem pingados ##
@@ -75,16 +78,11 @@ cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>
 
 
 ## Testando quais subdomínios estão no ar, e salvando em onsub.txt ##
-for online in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
+for onlinesub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
 do
-resposta=$(echo $online&&ping -c1 $online | grep "PING\|bytes from" | cut -d ' ' -f2)
-echo "[+]$online">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onsub.txt
-echo "$resposta" >> /dev/null 2>&1
+resposta=$(echo $onlinesub&&ping -c1 $onlinesub | grep "PING" | cut -d ' ' -f2)>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onlinesubs.txt
+echo "$resposta";
 done
-
-
-## Removendo arquivo criado ##
-rm numerosub
 
 
 ## Separando os endereços IP dos subdomínios para o PortScan ##
