@@ -81,7 +81,7 @@ cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>
 for onlinesub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
 do
 resposta=$(echo $onlinesub&&ping -c1 $onlinesub | grep "PING" | cut -d ' ' -f2)>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onlinesubs.txt
-echo "$resposta";
+echo "$resposta">> /dev/null;
 done
 
 
