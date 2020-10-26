@@ -13,11 +13,17 @@ echo -e "				   ┌┐ ┬ ┬  ╔═╗╔═╗╔═╗╔╦╗╔═╗╦
 echo -e "				───├┴┐└┬┘  ╚═╗║  ╠═╣ ║ ║ ║║  ║ ║║║"
 echo -e "				   └─┘ ┴   ╚═╝╚═╝╩ ╩ ╩ ╚═╝╩═╝╩ ╝╚╝\e[39m"
 
-                          
-## Localizando alvo e identificando endereço IP ##
-echo -e "\e[36m[*]\e[39m Insira a URL alvo:"
-echo -e '\e[36m* http://alvo.com  OU  https://alvo.com *\e[39m'
-read alvop
+
+## Definindo que a variável alvop seja passada via argumento ## 
+alvop=$1
+
+
+## Checando se o alvo foi passado via argumento, e caso contrário, printar exemplo de uso ##
+if [ $# -eq 0 ]
+  then
+    clear && echo -e "\e[31m[X]\e[39m Erro: alvo não definido!"
+    echo -e '\e[36m* Exemplo de uso: ./recon.sh https://alvo.com *\e[39m'
+  else
 
 
 ## Separando a URL em 3 variáveis: com protocolo, sem protocolo e apenas o domínio ##
@@ -44,7 +50,7 @@ done < dns.txt
 
 
 ## Utilizando o Sublist3r para enumerar ainda mais subdomínios ##
-cd /usr/share/sublister/ && python3 sublist3r.py -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
+sublist3r -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
 
 
 ## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados pelo Sublist3r ##
@@ -114,6 +120,11 @@ rm numerodir
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
 echo ''
 echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo'! *\e[39m'
+
+
+
+fi
+
 
 
 
