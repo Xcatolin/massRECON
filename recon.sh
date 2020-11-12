@@ -49,12 +49,20 @@ while read p; do
 done < dns.txt
 
 
-## Utilizando o Sublist3r para enumerar ainda mais subdomínios ##
-sublist3r -d $alvo -o /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt
+## Utilizando o amass para enumerar ainda mais subdomínios ##
+amass enum -d $alvo | grep "$alvo">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt
 
 
-## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados pelo Sublist3r ##
-for sub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt);
+## Utilizando o sort para remover duplicados e o httprobe para separar quais estão online ##
+sort -u /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | httprobe > /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/uniqsubs.txt
+
+
+## Utilizando o EyeWitness para printar os subdomínios que estão online ##
+eyewitness --web -f /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/uniqsubs.txt -d /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/eyewitness
+
+
+## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados ##
+for sub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt);
 do
 resposta=$(echo $sub&&host $sub)
 echo "$resposta" | grep "has address" | cut -d ' ' -f4 >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt;
@@ -65,30 +73,15 @@ done
 rm ip
 
 
-## Juntando todos os subdomínios para a contagem ##
-cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs2.txt>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt
-
-
 ## Contando quantos subdomínios foram encontrados e printando na tela ##
 wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
 nsub=$(cat numerosub)
 echo -e '\e[32m[+]\e[39m Foram encontrados' $nsub 'subdomínios!'
 echo ' '
 
+
 ## Removendo arquivo numerosub para que em um possível segundo teste a contagem seja exata ##
 rm /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
-
-
-## Separando apenas os subdomínios no arquivo subs.txt para serem pingados ##
-cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt
-
-
-## Testando quais subdomínios estão no ar, e salvando em onsub.txt ##
-for onlinesub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subdomains.txt);
-do
-resposta=$(echo $onlinesub&&ping -c1 $onlinesub | grep "PING" | cut -d ' ' -f2)>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/onlinesubs.txt
-echo "$resposta">> /dev/null;
-done
 
 
 ## Separando os endereços IP dos subdomínios para o PortScan ##
@@ -98,23 +91,6 @@ cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f4>
 ## Escaneando portas utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
 nmap -sS --open -iL /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ports.txt
-
-
-## Utilizando a URL junto ao protocolo para enumerar diretórios, filtrando os encontrados, armazenando em um arquivo ##
-echo ''
-echo -e "\e[36m[*]\e[39m Enumerando diretórios e armazenando no arquivo dirs.txt..."
-dirb $alvop wordlist.txt | grep "CODE:200" >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt
-
-
-## Contando quantos diretórios foram encontrados e printando na tela ##
-wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt | cut -d ' ' -f1>>numerodir
-ndir=$(cat numerodir)
-echo -e '\e[32m[+]\e[39m Foram encontrados' $ndir 'diretórios!'
-echo ' '
-
-
-## Removendo arquivo criado ##
-rm numerodir
 
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
@@ -155,3 +131,20 @@ fi
 ## Removendo arquivo criado ##
 #rm curl
 
+
+### VERSÃO INUTILIZADA DE DIRSCAN ###
+## Utilizando a URL junto ao protocolo para enumerar diretórios, filtrando os encontrados, armazenando em um arquivo ##
+#echo ''
+#echo -e "\e[36m[*]\e[39m Enumerando diretórios e armazenando no arquivo dirs.txt..."
+#dirb $alvop wordlist.txt | grep "CODE:200" >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt
+
+
+## Contando quantos diretórios foram encontrados e printando na tela ##
+#wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt | cut -d ' ' -f1>>numerodir
+#ndir=$(cat numerodir)
+#echo -e '\e[32m[+]\e[39m Foram encontrados' $ndir 'diretórios!'
+#echo ' '
+
+
+## Removendo arquivo criado ##
+#rm numerodir
