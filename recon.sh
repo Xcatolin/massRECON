@@ -35,8 +35,25 @@ host $alvo | grep "has address" | cut -d ' ' -f4 > ip
 ip=$(cat ip)
 
 
-## Criando diretório com o respectivo nome para armazenar os arquivos ##
-mkdir /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo
+## Verificando se o diretório para armazenar os resultados existe, e criando o mesmo caso não exista ##
+DIR="/home/resultados-massRECON"
+if [ -d "$DIR" ]; then
+  echo ""
+else
+        cd /home/ && mkdir resultados-massRECON
+fi
+
+
+## Verificando se o diretório com nome do alvo já existe, e criando o mesmo caso não exista ##
+DIR="/home/resultados-massRECON/$alvo"
+if [ -d "$DIR" ]; then
+  echo ""
+else
+        cd /home/resultados-massRECON && mkdir $alvo
+fi
+
+## Voltando para o diretório do script ##
+cd /usr/share/massRECON
 
 
 ## Enumerando subdomínios e armazenando em um arquivo com o respectivo nome ##
@@ -44,28 +61,33 @@ echo -e "\e[36m[*]\e[39m Enumerando subdomínios e armazenando no arquivo subs.t
 
 while read p; do
 
-   if host $p.$dominio | grep "has address">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt ; then echo ''>ip ; fi
+   if host $p.$dominio | grep "has address">/home/resultados-massRECON/$alvo/subs.txt ; then echo ''>ip ; fi
 
 done < dns.txt
 
 
 ## Utilizando o amass para enumerar ainda mais subdomínios ##
-amass enum -d $alvo | grep "$alvo">>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt
+amass enum -d $alvo | grep "$alvo">>/home/resultados-massRECON/$alvo/subs.txt
 
 
 ## Utilizando o sort para remover duplicados e o httprobe para separar quais estão online ##
-sort -u /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | httprobe > /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/uniqsubs.txt
+sort -u /home/resultados-massRECON/$alvo/subs.txt>>/home/resultados-massRECON/$alvo/uniqsubs.txt
+cd /usr/share/httprobe && cat /home/resultados-massRECON/$alvo/uniqsubs.txt | ./httprobe >>/home/resultados-massRECON/$alvo/livesubs.txt
+
+
+## Voltando para o diretório do script ##
+cd /usr/share/massRECON
 
 
 ## Utilizando o EyeWitness para printar os subdomínios que estão online ##
-eyewitness --web -f /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/uniqsubs.txt -d /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/eyewitness
+eyewitness --web -f /home/resultados-massRECON/$alvo/livesubs.txt -d /home/resultados-massRECON/$alvo/eyewitness
 
 
 ## Utilizando um laço para enumerar os endereços IP dos subdomínios enumerados ##
-for sub in $(cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt);
+for sub in $(cat /home/resultados-massRECON/$alvo/livesubs.txt);
 do
 resposta=$(echo $sub&&host $sub)
-echo "$resposta" | grep "has address" | cut -d ' ' -f4 >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt;
+echo "$resposta" | grep "has address" | cut -d ' ' -f4 >>/home/resultados-massRECON/$alvo/ips.txt;
 done
 
 
@@ -73,29 +95,22 @@ done
 rm ip
 
 
-## Contando quantos subdomínios foram encontrados e printando na tela ##
-wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
-nsub=$(cat numerosub)
-echo -e '\e[32m[+]\e[39m Foram encontrados' $nsub 'subdomínios!'
-echo ' '
-
-
-## Removendo arquivo numerosub para que em um possível segundo teste a contagem seja exata ##
-rm /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/numerosub
-
-
 ## Separando os endereços IP dos subdomínios para o PortScan ##
-cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f4>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt
+cat /home/resultados-massRECON/$alvo/subs.txt | cut -d ' ' -f4>>/home/resultados-massRECON/$alvo/ips.txt
+
+
+## Removendo os endereços repetidos para o portscan ##
+uniq -u /home/resultados-massRECON/$alvo/ips.txt>>/home/resultados-massRECON/$alvo/uniqips.txt
 
 
 ## Escaneando portas utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
-nmap -sS --open -iL /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/ports.txt
+nmap -sS --open -iL /home/resultados-massRECON/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/resultados-massRECON/$alvo/ports.txt
 
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
 echo ''
-echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo'! *\e[39m'
+echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/resultados-massRECON/$alvo'! *\e[39m'
 
 
 
@@ -115,7 +130,7 @@ fi
 ### FUNÇÃO ANTIGA PARA TESTAR MÉTODO OPTIONS ###
 
 ## Separando subdomínios para a utilização do cURL ##
-#cat /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/subs.txt | cut -d ' ' -f1>>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
+#cat /home/resultados-massRECON/$alvo/subs.txt | cut -d ' ' -f1>>/home/resultados-massRECON/$alvo/curl.txt
 
 
 ## Utilizando a URL para verificar se o método OPTIONS está habilitado ##
@@ -125,7 +140,7 @@ fi
 
 #   if curl -v -X OPTIONS --silent https://$c 2>&1 | grep 'Host:\|allow' ; then echo ''>curl ; fi
    	
-#done < /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/curl.txt
+#done < /home/resultados-massRECON/$alvo/curl.txt
 
 
 ## Removendo arquivo criado ##
@@ -136,11 +151,11 @@ fi
 ## Utilizando a URL junto ao protocolo para enumerar diretórios, filtrando os encontrados, armazenando em um arquivo ##
 #echo ''
 #echo -e "\e[36m[*]\e[39m Enumerando diretórios e armazenando no arquivo dirs.txt..."
-#dirb $alvop wordlist.txt | grep "CODE:200" >>/home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt
+#dirb $alvop wordlist.txt | grep "CODE:200" >>/home/resultados-massRECON/$alvo/dirs.txt
 
 
 ## Contando quantos diretórios foram encontrados e printando na tela ##
-#wc -l /home/matheus/Desktop/Bug\ Bounty\ Programs/$alvo/dirs.txt | cut -d ' ' -f1>>numerodir
+#wc -l /home/resultados-massRECON/$alvo/dirs.txt | cut -d ' ' -f1>>numerodir
 #ndir=$(cat numerodir)
 #echo -e '\e[32m[+]\e[39m Foram encontrados' $ndir 'diretórios!'
 #echo ' '
