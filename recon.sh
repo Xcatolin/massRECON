@@ -66,8 +66,13 @@ while read p; do
 done < dns.txt
 
 
-## Utilizando o amass para enumerar ainda mais subdomínios ##
+## Utilizando o amass para enumerar mais subdomínios ##
 amass enum -d $alvo | grep "$alvo">>/home/resultados-massRECON/$alvo/subs.txt
+
+
+## Utilizando o crt.sh para enumerar mais subdomínios ##
+curl -s https://crt.sh/?q=%.$alvo > /tmp/curl.out
+cat /tmp/curl.out | grep $alvo | grep TD | sed -e 's/<//g' | sed -e 's/>//g' | sed -e 's/TD//g' | sed -e 's/\///g' | sed -e 's/ //g' | sed -n '1!p' | sort -u > /home/resultados-massRECON/$alvo/subs.txt
 
 
 ## Utilizando o sort para remover duplicados e o httprobe para separar quais estão online ##
@@ -99,13 +104,13 @@ rm ip
 cat /home/resultados-massRECON/$alvo/subs.txt | cut -d ' ' -f4>>/home/resultados-massRECON/$alvo/ips.txt
 
 
-## Removendo os endereços repetidos para o portscan ##
-uniq -u /home/resultados-massRECON/$alvo/ips.txt>>/home/resultados-massRECON/$alvo/uniqips.txt
-
-
 ## Escaneando portas utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
 nmap -sS --open -iL /home/resultados-massRECON/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/resultados-massRECON/$alvo/ports.txt
+
+
+## Removendo os endereços repetidos para o portscan ##
+uniq -u /home/resultados-massRECON/$alvo/ips.txt>>/home/resultados-massRECON/$alvo/uniqips.txt
 
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
@@ -113,8 +118,9 @@ echo ''
 echo -e '\e[36m* O resultado de todos os testes está armazenado no diretório '/home/resultados-massRECON/$alvo'! *\e[39m'
 
 
-
 fi
+
+
 
 
 
