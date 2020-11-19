@@ -12,7 +12,7 @@ A shell script to automate those simple and repetitive tasks on recon!
 ## Installation
 cd /usr/share/ && git clone https://github.com/NoScatolin/massRECON/
 cd /usr/share/massRECON/ && chmod 777 *
-*Optional: add an massRECON alias to your ~/.bashrc file
+### Optional: add an massRECON alias to your ~/.bashrc file 
 
 ## Usage
 `` ~ > ./recon.sh target.com``
