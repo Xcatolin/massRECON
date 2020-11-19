@@ -2,7 +2,7 @@
 A shell script to automate those simple and repetitive tasks on recon!
 
 ## Requirements
-◉ Tomnomnom's HTTprobe <br>
+◉ Tomnomnom's HTTProbe <br>
 ◉ amass <br>
 ◉ Nmap <br>
 ◉ cURL <br>
