@@ -114,7 +114,7 @@ rm /home/resultados-massRECON/$alvo/ips.txt
 
 ## Escaneando portas utilizando todos os endereços IP da lista, filtrando os resultados e armazenando em um arquivo com o respectivo nome ##
 echo -e "\e[36m[*]\e[39m Varrendo portas e armazenando no arquivo ports.txt..."
-nmap -sS --open -iL /home/resultados-massRECON/$alvo/ips.txt | grep 'Nmap scan report for\|/tcp'>>/home/resultados-massRECON/$alvo/ports.txt
+nmap -sS --open -iL /home/resultados-massRECON/$alvo/uniqips.txt | grep 'Nmap scan report for\|/tcp'>>/home/resultados-massRECON/$alvo/ports.txt
 
 
 ## Imprimindo na tela onde fica salvo todo o resultado do teste ##
