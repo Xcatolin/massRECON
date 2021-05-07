@@ -73,7 +73,7 @@ amass enum -d $alvo | grep "$alvo">>/home/resultados-massRECON/$alvo/subs.txt
 
 ## Utilizando o crt.sh para enumerar mais subdomínios ##
 curl -s https://crt.sh/?q=%.$alvo > /tmp/curl.out
-cat /tmp/curl.out | grep $alvo | grep TD | sed -e 's/<//g' | sed -e 's/>//g' | sed -e 's/TD//g' | sed -e 's/\///g' | sed -e 's/ //g' | sed -n '1!p' | sort -u > /home/resultados-massRECON/$alvo/subs.txt
+cat /tmp/curl.out | grep $alvo | grep TD | sed -e 's/<//g' | sed -e 's/>//g' | sed -e 's/TD//g' | sed -e 's/\///g' | sed -e 's/ //g' | sed -n '1!p' | sort -u >> /home/resultados-massRECON/$alvo/subs.txt
 
 
 ## Utilizando o sort para remover duplicados e o httprobe para separar quais estão online ##
