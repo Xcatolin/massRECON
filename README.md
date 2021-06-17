@@ -10,7 +10,7 @@ A shell script to automate those simple and repetitive tasks on recon!
 
 
 ## Installation
-cd /usr/share/ && git clone https://github.com/NoScatolin/massRECON/
+cd /usr/share/ && git clone https://github.com/Xcatolin/massRECON/
 cd /usr/share/massRECON/ && chmod 777 *
 ### Optional: add an massRECON alias to your ~/.bashrc file 
 
@@ -18,5 +18,5 @@ cd /usr/share/massRECON/ && chmod 777 *
 `` ~ > ./recon.sh target.com``
 
 ## Author
-* made by [@mr.scatolin](https://instagram.com/mr.scatolin/)
+* made by [@Xcatolin](https://linkedin.com/in/matheus-ab/)
 * [@mscybersec](https://instagram.com/mscybersec/)
